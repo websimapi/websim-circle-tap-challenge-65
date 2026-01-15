@@ -1,4 +1,5 @@
-import { fetchLeaderboard, renderLeaderboardList, renderLeaderboardPagination, syncScores, fetchUserProfile, renderMyScores } from './leaderboard.js';
+import { fetchLeaderboard, syncScores, fetchUserProfile } from './leaderboard-api.js';
+import { renderLeaderboardList, renderLeaderboardPagination, renderMyScores } from './leaderboard-render.js';
 
 export class LeaderboardController {
     constructor(elements, ui, callbacks) {
