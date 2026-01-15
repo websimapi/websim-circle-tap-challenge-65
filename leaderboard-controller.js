@@ -175,6 +175,10 @@ export class LeaderboardController {
 
         if (pageChanged) {
             this._render();
+            // Scroll to top of the leaderboard view to prevent disorientation
+            if (this.elements.leaderboardView) {
+                this.elements.leaderboardView.scrollTop = 0;
+            }
         }
     }
 

@@ -328,13 +328,46 @@ export async function fetchUserProfile(username) {
 export function renderMyScores(userProfile) {
     if (!userProfile) return '<div style="text-align:center; padding: 20px; color: #888;">No profile found. Play a game to create one!</div>';
 
+    const { username } = userProfile;
     const difficulties = ['easy', 'medium', 'hard'];
     
-    return difficulties.map(diff => {
+    // Calculate stats
+    let totalGames = 0;
+    const bestScores = { easy: '-', medium: '-', hard: '-' };
+
+    difficulties.forEach(diff => {
         const scores = userProfile[diff] || [];
-        // Sort by score desc
+        totalGames += scores.length;
+        if (scores.length > 0) {
+            const sorted = [...scores].sort((a, b) => b.score - a.score);
+            bestScores[diff] = sorted[0].score;
+        }
+    });
+
+    const avatarUrl = `https://images.websim.com/avatar/${username}`;
+    
+    // Header HTML
+    const headerHtml = `
+        <div class="profile-header">
+            <div class="profile-avatar-container">
+                <img src="${avatarUrl}" alt="${username}" class="profile-avatar-large">
+            </div>
+            <div class="profile-stats-container">
+                <div class="profile-username">${username}</div>
+                <div class="profile-total-games">${totalGames} Games Played</div>
+                <div class="profile-bests">
+                    <div class="best-stat"><span class="label">Easy</span><span class="value">${bestScores.easy}</span></div>
+                    <div class="best-stat"><span class="label">Med</span><span class="value">${bestScores.medium}</span></div>
+                    <div class="best-stat"><span class="label">Hard</span><span class="value">${bestScores.hard}</span></div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Dropdowns HTML
+    const dropdownsHtml = difficulties.map(diff => {
+        const scores = userProfile[diff] || [];
         const sortedScores = [...scores].sort((a, b) => b.score - a.score);
-        const bestScore = sortedScores.length > 0 ? sortedScores[0].score : '-';
         
         const scoreListHtml = sortedScores.map((game, index) => {
             const watchIcon = `<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M8 5v14l11-7z"/></svg>`;
@@ -354,18 +387,16 @@ export function renderMyScores(userProfile) {
             <div class="leaderboard-entry-wrapper my-score-section">
                 <div class="leaderboard-entry section-header" data-difficulty="${diff}">
                     <div class="diff-title">${diff.charAt(0).toUpperCase() + diff.slice(1)}</div>
-                    <div class="score">
-                        <div class="score-value">Best: ${bestScore}</div>
-                        <div class="games-played">${scores.length} games</div>
-                    </div>
-                     <div class="dropdown-icon">▼</div>
+                    <div class="dropdown-icon">▼</div>
                 </div>
                 <div class="score-list-container hidden">
-                    ${scores.length > 0 ? scoreListHtml : '<div style="padding:10px; text-align:center; color:#888;">No scores yet</div>'}
+                    ${scores.length > 0 ? scoreListHtml : '<div style="padding:10px; text-align:center; color:#888; font-size: 0.9rem;">No scores yet</div>'}
                 </div>
             </div>
         `;
     }).join('');
+
+    return headerHtml + dropdownsHtml;
 }
 
 function getOrdinal(n) {
